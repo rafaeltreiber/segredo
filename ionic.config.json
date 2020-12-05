@@ -1,5 +1,7 @@
 {
   "name": "segredo",
-  "integrations": {},
+  "integrations": {
+    "cordova": {}
+  },
   "type": "angular"
 }
