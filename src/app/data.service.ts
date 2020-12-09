@@ -33,8 +33,13 @@ export class DataService {
     );
   }
 
-  getAll(): Observable<Partida[]> {
+  getAll(): Observable<Partida[]> {   
     return this.Partidas;
+  }
+
+  async getUserEmail()
+  {
+    return this.currentUser.email;
   }
 
   getPartida(id: string): Observable<Partida> {
@@ -48,20 +53,41 @@ export class DataService {
   }
 
   addPartida(partida: Partida): Promise<DocumentReference> {    
-      
+    //Outro jeito de salvar, mas não salva o id junto na base  
    // return this.ColecaodePartidas.add(partida);
-   
+
+   var temppart = {
+     id: partida.id,
+     id_oponente: partida.id_oponente,
+     imgX: partida.imgX,
+     imgY: partida.imgY,
+     email: partida.email,
+     situacao: partida.situacao,
+     turno: partida.turno,
+     matriz_propria: JSON.stringify(partida.matriz_propria),
+     matriz_oponente: JSON.stringify(partida.matriz_oponente)
+   }
+
    //get id from firestore
-   partida.id = this.afs.createId(); 
-   return this.afs.collection('partidas').doc(partida.id).set(partida).then();
+   temppart.id = this.afs.createId();    
+   return this.afs.collection('partidas').doc(temppart.id).set(temppart).then();
   }
 
   updatePartida(partida: Partida): Promise<void> {
-    return this.ColecaodePartidas.doc(partida.id).update({
+    //Esse abaixo não funciona porque o firebase não consegue salvar matrizes multidimensionais
+    //e se usar stringify, a função não aceita pois espera uma variável do tipo Partida, que
+    //tem matrizes multidimensionais tipo number
+    //return this.ColecaodePartidas.doc(temppart.id).update(partida);
+    return this.afs.collection('partidas').doc(partida.id).update({
       id: partida.id,
-      key_oponente: partida.key_oponente, imgX: partida.imgX, imgY: partida.imgY, nome: partida.nome,
-      situacao: partida.situacao, turno: partida.turno, matriz_propria: partida.matriz_propria,
-      matriz_oponente: partida.matriz_oponente
+      id_oponente: partida.id_oponente,
+      imgX: partida.imgX,
+      imgY: partida.imgY,
+      email: partida.email,
+      situacao: partida.situacao,
+      turno: partida.turno,
+      matriz_propria: JSON.stringify(partida.matriz_propria),
+      matriz_oponente: JSON.stringify(partida.matriz_oponente)
     });
   }
 
@@ -92,17 +118,43 @@ export class DataService {
   signOut(): Promise<void> {
     return this.afAuth.signOut();
   }
-
 }
 
 export class Partida {
   id?: string;
-  key_oponente?: string;
+  id_oponente?: string;
   imgX?: number;
   imgY?: number;
-  nome?: string;
+  email?: string;
   situacao: string;
   turno: boolean;
   matriz_propria: number[][] = [];
   matriz_oponente: number[][] = [];
+
+  constructor() {
+    this.id = "";
+    this.id_oponente = "";
+    this.imgX = 0;
+    this.imgY = 0;
+    this.email = "";
+    this.situacao = "";
+    this.turno = false;    
+    this.matriz_propria = [
+      [ 999, 999, 999, 999, 999, 999, 999, 999, 999, 999],
+      [ 999, 999, 999, 999, 999, 999, 999, 999, 999, 999],
+      [ 999, 999, 999, 999, 999, 999, 999, 999, 999, 999],
+      [ 999, 999, 999, 999, 999, 999, 999, 999, 999, 999],
+      [ 999, 999, 999, 999, 999, 999, 999, 999, 999, 999],
+      [ 999, 999, 999, 999, 999, 999, 999, 999, 999, 999]
+    ]
+
+    this.matriz_oponente = [
+      [ 999, 999, 999, 999, 999, 999, 999, 999, 999, 999],
+      [ 999, 999, 999, 999, 999, 999, 999, 999, 999, 999],
+      [ 999, 999, 999, 999, 999, 999, 999, 999, 999, 999],
+      [ 999, 999, 999, 999, 999, 999, 999, 999, 999, 999],
+      [ 999, 999, 999, 999, 999, 999, 999, 999, 999, 999],
+      [ 999, 999, 999, 999, 999, 999, 999, 999, 999, 999]
+    ]
+  }
 }

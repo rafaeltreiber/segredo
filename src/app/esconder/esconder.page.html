@@ -198,14 +198,14 @@
           <ion-col class="linha">
             <img [src] = "GetImage(5, 9)" (click)="Esconder(5, 9)">            
           </ion-col>
-        </ion-row>         
-        <ion-row>
-          <ion-col>
-            <ion-button expand="block" (click) = "save()">Salvar</ion-button>
-          </ion-col>
         </ion-row>  
       </ion-grid>
     </ion-card-content>
   </ion-card>
+  <ion-row>
+    <ion-col>
+      <ion-button expand="block" (click) = "Salvar()">Salvar</ion-button>
+    </ion-col>
+  </ion-row>  
   <ion-label id = "Aguardando" *ngIf = "part.situacao == 'Procurando'">Aguardando oponente...</ion-label>
 </ion-content>

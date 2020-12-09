@@ -29,8 +29,8 @@
       ></ion-input>
     </ion-item>
     <div *ngIf="(email.dirty || email.touched) && email.errors" class="errors">
-      <span *ngIf="email.errors?.required">Email is required</span>
-      <span *ngIf="email.errors?.email">Email is invalid</span>
+      <span *ngIf="email.errors?.required">Email é obrigatório</span>
+      <span *ngIf="email.errors?.email">O Email digitado é invalido</span>
     </div>
  
     <ion-item>
@@ -42,12 +42,12 @@
     ></ion-input>
     </ion-item>
     <div *ngIf="(password.dirty || password.touched) && password.errors" class="errors">
-      <span *ngIf="password.errors?.required">Password is required</span>
-      <span *ngIf="password.errors?.minlength">Password needs to be 6 characters</span>
+      <span *ngIf="password.errors?.required">A senha é obrigatória</span>
+      <span *ngIf="password.errors?.minlength">A senha precisa ter no mínimo seis caracteres</span>
     </div>
   </form>
  
-    <ion-button (click)="signUp()" expand="full">Sing up</ion-button>
-    <ion-button (click)="signIn()" expand="full" color="secondary">Sing in</ion-button>
+    <ion-button (click)="signUp()" expand="full">Registrar</ion-button>
+    <ion-button (click)="signIn()" expand="full" color="secondary">Entrar</ion-button>
 
 </ion-content>
