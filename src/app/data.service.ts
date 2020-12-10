@@ -50,7 +50,7 @@ export class DataService {
         return partida;
       })
     );
-  }
+  }  
 
   addPartida(partida: Partida): Promise<DocumentReference> {    
     //Outro jeito de salvar, mas não salva o id junto na base  

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Partida, DataService } from 'src/app/data.service';
-import { Router, NavigationExtras } from '@angular/router';
+import { Router, NavigationExtras, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-esconder',
@@ -11,12 +11,21 @@ export class EsconderPage implements OnInit {
   public part: Partida = new Partida();
   private Partidas: Partida[] = [];
 
-  constructor(private router: Router, private ds: DataService) {
+  constructor(private router: Router, private route: ActivatedRoute, private ds: DataService) {
 
   }
 
   ngOnInit() {
 
+  }
+
+  ionViewWillEnter() {
+    this.part = new Partida();
+  }
+
+  ionViewWillLeave() {
+    this.part.situacao = "Encerrado";
+    this.ds.updatePartida(this.part);
   }
 
   Deslogar() {
@@ -56,16 +65,17 @@ export class EsconderPage implements OnInit {
         this.part.id = this.Partidas[a].id;
         this.part.matriz_propria = JSON.parse(JSON.stringify(this.part.matriz_propria));
         this.part.matriz_oponente = JSON.parse(JSON.stringify(this.part.matriz_oponente));
-        this.ds.updatePartida(Object.assign({}, this.part));
-      }
-    }
-
-    for (a = 0; a < this.Partidas.length; a++) {
-      if (this.Partidas[a].situacao == "Procurando" && this.Partidas[a].email != this.part.email) {
-        this.part.id_oponente = this.Partidas[a].id;
         this.ds.updatePartida(Object.assign({}, this.part)).then()
         {
-          this.ProximaPagina();
+          for (a = 0; a < this.Partidas.length; a++) {
+            if (this.Partidas[a].situacao == "Procurando" && this.Partidas[a].email != this.part.email) {
+              this.part.id_oponente = this.Partidas[a].id;
+              this.ds.updatePartida(Object.assign({}, this.part)).then()
+              {
+                this.ProximaPagina();
+              }
+            }
+          }
         }
       }
     }
@@ -81,7 +91,7 @@ export class EsconderPage implements OnInit {
   }
 
   Salvar() {
-    //  this.GeraMatrizPropria();
+    this.GeraMatrizPropria();
     this.ds.getUserEmail().then((res) => {
       this.part.email = res;
       if (this.part.email == "bruna@delicia.com")

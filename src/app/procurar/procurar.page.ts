@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Partida, DataService } from 'src/app/data.service';
 import { Router, NavigationExtras, ActivatedRoute } from '@angular/router';
+import { AngularFirestore } from '@angular/fire/firestore';
+
 @Component({
   selector: 'app-procurar',
   templateUrl: './procurar.page.html',
@@ -11,7 +13,8 @@ export class ProcurarPage implements OnInit {
   part_oponente = new Partida();
   GameOver: boolean = false;
 
-  constructor(private ds: DataService, private route: ActivatedRoute, private router: Router) { 
+  constructor(private ds: DataService, private route: ActivatedRoute, private router: Router,
+    private afs: AngularFirestore) {
     this.route.queryParams.subscribe(params => {
       if (this.router.getCurrentNavigation().extras.state) {
         this.part = JSON.parse(this.router.getCurrentNavigation().extras.state.conteudos);
@@ -20,11 +23,19 @@ export class ProcurarPage implements OnInit {
   }
 
   ngOnInit() {
-  this.Leituras();
+    this.GetPartidaOponente(this.part.id_oponente);
+    this.GetPartidaPropria(this.part.id);
   }
 
-  Leituras() {
-    this.ds.getPartida(this.part.id).subscribe(res => {
+  ionViewWillLeave() {
+    this.part.situacao = "Encerrado";
+    this.part_oponente.situacao = "Encerrado";
+    this.ds.updatePartida(this.part);
+    this.ds.updatePartida(this.part_oponente);
+  }  
+
+  GetPartidaPropria(id) {
+    this.afs.doc('partidas/' + id).valueChanges().subscribe(res => {
       this.part.imgX = res["imgX"];
       this.part.imgY = res["imgY"];
       this.part.id_oponente = res["id_oponente"];
@@ -34,13 +45,38 @@ export class ProcurarPage implements OnInit {
       this.part.situacao = res["situacao"];
       this.part.matriz_propria = JSON.parse(res["matriz_propria"]);
       this.part.matriz_oponente = JSON.parse(res["matriz_oponente"]);
-    });
-    this.ds.getPartida(this.part.id_oponente).subscribe(res2 => {
-      this.part_oponente = res2;     
-    });
-
+    })
   }
-  
+
+  GetPartidaOponente(id) {
+    this.afs.doc('partidas/' + id).valueChanges().subscribe(res => {
+      this.part_oponente.imgX = res["imgX"];
+      this.part_oponente.imgY = res["imgY"];
+      this.part_oponente.id_oponente = res["id_oponente"];
+      this.part_oponente.id = res["id"];
+      this.part_oponente.email = res["email"];
+      this.part_oponente.turno = res["turno"];
+      this.part_oponente.situacao = res["situacao"];
+      this.part_oponente.matriz_propria = JSON.parse(res["matriz_propria"]);
+      this.part_oponente.matriz_oponente = JSON.parse(res["matriz_oponente"]);
+     
+      if (this.part_oponente.matriz_oponente[this.part.imgX][this.part.imgY] ==
+        this.part.matriz_propria[this.part.imgX][this.part.imgY] && this.GameOver != true) {
+        this.GameOver = true;
+        alert("O oponente achou");
+      }
+    })
+  }
+
+  NovoJogo() {
+    let navigationExtras: NavigationExtras = {
+      state: {
+        conteudos: JSON.stringify(this.part)
+      }
+    };
+    this.router.navigate(['esconder'], navigationExtras);    
+  }
+
 
   GetImage(x: number, y: number, Jogador: string) {
     switch (Jogador == "proprio" ? this.part.matriz_oponente[x][y] : this.part_oponente.matriz_oponente[x][y]) {
@@ -104,10 +140,7 @@ export class ProcurarPage implements OnInit {
       this.part_oponente.turno = true;
       this.ds.updatePartida(this.part).then()
       {
-        this.ds.updatePartida(this.part_oponente).then()
-        { 
-          this.Leituras();
-        }
+        this.ds.updatePartida(this.part_oponente);
       }
     }
   }
